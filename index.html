@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>💰 Finance App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<div class="container">
+  <h1>💰 Finance Tracker</h1>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="expenses">Expenses</button>
+    <button class="tab-btn" data-tab="payslips">Payslips</button>
+    <button class="tab-btn" data-tab="budgets">Budgets</button>
+  </div>
+
+  <!-- EXPENSES -->
+  <div id="expenses" class="tab-content active">
+    <h2>Expenses</h2>
+
+    <label>Month Filter</label>
+    <input type="month" id="monthFilter">
+
+    <select id="expenseCurrency">
+      <option value="usd">USD</option>
+      <option value="ils">ILS</option>
+    </select>
+
+    <input type="text" id="category" placeholder="Category">
+    <input type="number" id="amount" placeholder="Amount">
+
+    <button onclick="app.addExpense()">Add Expense</button>
+
+    <h3 id="expenseTotal"></h3>
+    <div id="expensesList"></div>
+  </div>
+
+  <!-- PAYSLIPS -->
+  <div id="payslips" class="tab-content">
+    <h2>Payslips</h2>
+
+    <select id="payslipCurrency">
+      <option value="usd">USD</option>
+      <option value="ils">ILS</option>
+    </select>
+
+    <input type="number" id="income" placeholder="Income">
+    <input type="number" id="tax" placeholder="Tax">
+
+    <button onclick="app.addPayslip()">Add Payslip</button>
+
+    <div id="payslipsList"></div>
+  </div>
+
+  <!-- BUDGETS -->
+  <div id="budgets" class="tab-content">
+    <h2>Budgets</h2>
+
+    <select id="budgetCurrency">
+      <option value="usd">USD</option>
+      <option value="ils">ILS</option>
+    </select>
+
+    <input type="text" id="budgetCategory" placeholder="Category">
+    <input type="number" id="budgetLimit" placeholder="Monthly Limit">
+
+    <button onclick="app.addBudget()">Add Budget</button>
+
+    <div id="budgetsList"></div>
+  </div>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
