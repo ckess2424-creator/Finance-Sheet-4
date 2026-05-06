@@ -1,197 +1,93 @@
 class FinanceApp {
   constructor() {
-    this.data = {
-      expenses: { usd: [], ils: [] },
-      payslips: { usd: [], ils: [] },
-      budgets: { usd: [], ils: [] }
+    this.data = JSON.parse(localStorage.getItem("finance")) || {
+      expenses: [],
+      payslips: [],
+      balances: {}
     };
 
-    this.load();
-    this.initTabs();
-    this.initMonthFilter();
+    this.showTab("expenses");
     this.render();
   }
 
-  // STORAGE
   save() {
-    localStorage.setItem("financeData", JSON.stringify(this.data));
+    localStorage.setItem("finance", JSON.stringify(this.data));
   }
 
-  load() {
-    const saved = JSON.parse(localStorage.getItem("financeData"));
-    if (saved) this.data = saved;
+  showTab(tab) {
+    document.querySelectorAll(".tab").forEach(t => t.style.display = "none");
+    document.getElementById(tab).style.display = "block";
   }
 
-  // TABS
-  initTabs() {
-    document.querySelectorAll(".tab-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-        document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
-
-        btn.classList.add("active");
-        document.getElementById(btn.dataset.tab).classList.add("active");
-      });
-    });
-  }
-
-  // MONTH FILTER
-  initMonthFilter() {
-    const input = document.getElementById("monthFilter");
-
-    const now = new Date();
-    input.value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;
-
-    input.addEventListener("change", () => this.render());
-  }
-
-  getFilteredExpenses(currency) {
-    const filter = document.getElementById("monthFilter").value;
-    if (!filter) return this.data.expenses[currency];
-
-    const [year, month] = filter.split("-");
-
-    return this.data.expenses[currency].filter(e => {
-      const d = new Date(e.date);
-      return d.getFullYear() == year && (d.getMonth()+1) == month;
-    });
-  }
-
-  // EXPENSES
   addExpense() {
-    const currency = document.getElementById("expenseCurrency").value;
-    const category = document.getElementById("category").value;
-    const amount = parseFloat(document.getElementById("amount").value);
+    const exp = {
+      currency: currency.value,
+      date: date.value,
+      category: category.value,
+      amount: parseFloat(amount.value)
+    };
 
-    if (!category || isNaN(amount)) return alert("Fill fields");
-
-    this.data.expenses[currency].push({
-      id: Date.now(),
-      category,
-      amount,
-      date: new Date().toISOString()
-    });
-
+    this.data.expenses.push(exp);
     this.save();
     this.render();
   }
 
-  deleteExpense(currency, id) {
-    this.data.expenses[currency] =
-      this.data.expenses[currency].filter(e => e.id !== id);
-
-    this.save();
-    this.render();
-  }
-
-  // PAYSLIPS
   addPayslip() {
-    const currency = document.getElementById("payslipCurrency").value;
-    const income = parseFloat(document.getElementById("income").value);
-    const tax = parseFloat(document.getElementById("tax").value);
+    const pay = {
+      currency: payCurrency.value,
+      date: payDate.value,
+      gross: parseFloat(gross.value),
+      taxes: parseFloat(taxes.value)
+    };
 
-    if (isNaN(income) || isNaN(tax)) return alert("Fill fields");
-
-    this.data.payslips[currency].push({
-      id: Date.now(),
-      income,
-      tax
-    });
-
+    this.data.payslips.push(pay);
     this.save();
     this.render();
   }
 
-  // BUDGETS
-  addBudget() {
-    const currency = document.getElementById("budgetCurrency").value;
-    const category = document.getElementById("budgetCategory").value;
-    const limit = parseFloat(document.getElementById("budgetLimit").value);
-
-    if (!category || isNaN(limit)) return alert("Fill fields");
-
-    this.data.budgets[currency].push({
-      id: Date.now(),
-      category,
-      limit
-    });
-
+  updateBalance(key) {
+    this.data.balances[key] = parseFloat(document.getElementById(key).value);
     this.save();
-    this.render();
   }
 
-  // RENDER
   render() {
     this.renderExpenses();
     this.renderPayslips();
-    this.renderBudgets();
+    this.renderSummary();
   }
 
   renderExpenses() {
-    const list = document.getElementById("expensesList");
-    list.innerHTML = "";
-
-    let total = 0;
-
-    ["usd", "ils"].forEach(currency => {
-      this.getFilteredExpenses(currency).forEach(e => {
-        total += e.amount;
-
-        const div = document.createElement("div");
-        div.className = "item";
-
-        div.innerHTML = `
-          ${currency.toUpperCase()} - ${e.category} - ${e.amount}
-          <button onclick="app.deleteExpense('${currency}', ${e.id})">X</button>
-        `;
-
-        list.appendChild(div);
-      });
-    });
-
-    document.getElementById("expenseTotal").textContent = `Total: ${total}`;
+    expenseList.innerHTML = this.data.expenses.map(e =>
+      `${e.date} | ${e.category} | ${e.currency} ${e.amount}`
+    ).join("<br>");
   }
 
   renderPayslips() {
-    const list = document.getElementById("payslipsList");
-    list.innerHTML = "";
-
-    ["usd", "ils"].forEach(currency => {
-      this.data.payslips[currency].forEach(p => {
-        const div = document.createElement("div");
-        div.className = "item";
-
-        div.innerHTML = `
-          ${currency.toUpperCase()} Income: ${p.income} | Tax: ${p.tax}
-        `;
-
-        list.appendChild(div);
-      });
-    });
+    payslipList.innerHTML = this.data.payslips.map(p =>
+      `${p.date} | ${p.currency} ${p.gross - p.taxes}`
+    ).join("<br>");
   }
 
-  renderBudgets() {
-    const list = document.getElementById("budgetsList");
-    list.innerHTML = "";
+  renderSummary() {
+    const totalIncome = this.data.payslips.reduce((s,p)=>s+(p.gross-p.taxes),0);
+    const totalExpenses = this.data.expenses.reduce((s,e)=>s+e.amount,0);
+    const savings = totalIncome - totalExpenses;
 
-    ["usd", "ils"].forEach(currency => {
-      this.data.budgets[currency].forEach(b => {
+    summaryText.innerText =
+      `Income: ${totalIncome} | Expenses: ${totalExpenses} | Saved: ${savings}`;
 
-        const spent = this.getFilteredExpenses(currency)
-          .filter(e => e.category === b.category)
-          .reduce((sum, e) => sum + e.amount, 0);
+    const ctx = document.getElementById("chart");
 
-        const div = document.createElement("div");
-        div.className = "item";
+    if (this.chart) this.chart.destroy();
 
-        div.innerHTML = `
-          ${currency.toUpperCase()} - ${b.category}
-          <br>
-          ${spent} / ${b.limit}
-        `;
-
-        list.appendChild(div);
-      });
+    this.chart = new Chart(ctx, {
+      type: "doughnut",
+      data: {
+        labels: ["Expenses", "Savings"],
+        datasets: [{
+          data: [totalExpenses, savings]
+        }]
+      }
     });
   }
 }
