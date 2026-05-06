@@ -2,77 +2,78 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>💰 Finance App</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>💰 Finance Dashboard</title>
   <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
-
 <div class="container">
-  <h1>💰 Finance Tracker</h1>
 
-  <!-- TABS -->
-  <div class="tabs">
-    <button class="tab-btn active" data-tab="expenses">Expenses</button>
-    <button class="tab-btn" data-tab="payslips">Payslips</button>
-    <button class="tab-btn" data-tab="budgets">Budgets</button>
-  </div>
+<h1>💰 Finance Dashboard</h1>
 
-  <!-- EXPENSES -->
-  <div id="expenses" class="tab-content active">
-    <h2>Expenses</h2>
+<div class="tabs">
+  <button onclick="app.showTab('expenses')">Expenses</button>
+  <button onclick="app.showTab('balances')">Balances</button>
+  <button onclick="app.showTab('payslips')">Payslips</button>
+  <button onclick="app.showTab('summary')">Summary</button>
+</div>
 
-    <label>Month Filter</label>
-    <input type="month" id="monthFilter">
+<!-- EXPENSES -->
+<div id="expenses" class="tab">
+  <h2>Expenses</h2>
 
-    <select id="expenseCurrency">
-      <option value="usd">USD</option>
-      <option value="ils">ILS</option>
-    </select>
+  <select id="currency">
+    <option value="usd">USD</option>
+    <option value="ils">ILS</option>
+  </select>
 
-    <input type="text" id="category" placeholder="Category">
-    <input type="number" id="amount" placeholder="Amount">
+  <input type="date" id="date">
+  <input type="text" id="category" placeholder="Category">
+  <input type="number" id="amount" placeholder="Amount">
+  <button onclick="app.addExpense()">Add</button>
 
-    <button onclick="app.addExpense()">Add Expense</button>
+  <div id="expenseList"></div>
+</div>
 
-    <h3 id="expenseTotal"></h3>
-    <div id="expensesList"></div>
-  </div>
+<!-- BALANCES -->
+<div id="balances" class="tab">
+  <h2>Balances</h2>
 
-  <!-- PAYSLIPS -->
-  <div id="payslips" class="tab-content">
-    <h2>Payslips</h2>
+  <input id="usdChecking" placeholder="USD Checking">
+  <button onclick="app.updateBalance('usdChecking')">Save</button>
 
-    <select id="payslipCurrency">
-      <option value="usd">USD</option>
-      <option value="ils">ILS</option>
-    </select>
+  <input id="usdSavings" placeholder="USD Savings">
+  <button onclick="app.updateBalance('usdSavings')">Save</button>
 
-    <input type="number" id="income" placeholder="Income">
-    <input type="number" id="tax" placeholder="Tax">
+  <input id="ils" placeholder="ILS">
+  <button onclick="app.updateBalance('ils')">Save</button>
+</div>
 
-    <button onclick="app.addPayslip()">Add Payslip</button>
+<!-- PAYSLIPS -->
+<div id="payslips" class="tab">
+  <h2>Payslips</h2>
 
-    <div id="payslipsList"></div>
-  </div>
+  <select id="payCurrency">
+    <option value="usd">USD</option>
+    <option value="ils">ILS</option>
+  </select>
 
-  <!-- BUDGETS -->
-  <div id="budgets" class="tab-content">
-    <h2>Budgets</h2>
+  <input type="date" id="payDate">
+  <input type="number" id="gross" placeholder="Gross">
+  <input type="number" id="taxes" placeholder="Taxes">
 
-    <select id="budgetCurrency">
-      <option value="usd">USD</option>
-      <option value="ils">ILS</option>
-    </select>
+  <button onclick="app.addPayslip()">Add Payslip</button>
 
-    <input type="text" id="budgetCategory" placeholder="Category">
-    <input type="number" id="budgetLimit" placeholder="Monthly Limit">
+  <div id="payslipList"></div>
+</div>
 
-    <button onclick="app.addBudget()">Add Budget</button>
-
-    <div id="budgetsList"></div>
-  </div>
+<!-- SUMMARY -->
+<div id="summary" class="tab">
+  <h2>Monthly Summary</h2>
+  <p id="summaryText"></p>
+  <canvas id="chart"></canvas>
+</div>
 
 </div>
 
